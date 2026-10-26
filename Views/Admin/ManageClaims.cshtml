@@ -1,0 +1,134 @@
+@model IEnumerable<BackToYou.Models.Entities.Claim>
+@{
+    ViewData["Title"] = "Review Claims";
+    var selectedStatus = ViewBag.SelectedStatus as BackToYou.Models.Entities.ClaimStatus?;
+}
+
+<div class="container py-4 py-lg-5">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+        <div>
+            <h1 class="page-title mb-1">Ownership Claims Moderation</h1>
+            <p class="section-subtitle mb-0">Verify submitted proof of ownership, review attachments, and issue collection decisions.</p>
+        </div>
+        <div class="dashboard-nav-pills">
+            <a asp-action="Dashboard" class="nav-link">Overview</a>
+            <a asp-action="ManageClaims" class="nav-link active">Claims</a>
+            <a asp-action="ManageItems" class="nav-link">Items</a>
+            <a asp-action="ManageUsers" class="nav-link">Users</a>
+        </div>
+    </div>
+
+    <!-- Filter Pills -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a asp-action="ManageClaims" class="btn btn-sm @(selectedStatus == null ? "btn-primary" : "btn-secondary")">All Claims</a>
+        <a asp-action="ManageClaims" asp-route-status="Pending" class="btn btn-sm @(selectedStatus == BackToYou.Models.Entities.ClaimStatus.Pending ? "btn-primary" : "btn-secondary")">Pending</a>
+        <a asp-action="ManageClaims" asp-route-status="Approved" class="btn btn-sm @(selectedStatus == BackToYou.Models.Entities.ClaimStatus.Approved ? "btn-primary" : "btn-secondary")">Approved</a>
+        <a asp-action="ManageClaims" asp-route-status="Rejected" class="btn btn-sm @(selectedStatus == BackToYou.Models.Entities.ClaimStatus.Rejected ? "btn-primary" : "btn-secondary")">Rejected</a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var claim in Model)
+            {
+                <div class="col-lg-6">
+                    <div class="card bg-white rounded-4 border shadow-sm h-100 overflow-hidden">
+                        <div class="p-3 px-4 bg-light border-bottom d-flex justify-content-between align-items-center">
+                            <span class="small text-muted fw-medium">
+                                Claim #@claim.Id &bull; @claim.SubmittedAt.ToString("MMM dd, yyyy - hh:mm tt")
+                            </span>
+                            @{
+                                var statusBadge = claim.Status switch
+                                {
+                                    BackToYou.Models.Entities.ClaimStatus.Pending => "badge-pending",
+                                    BackToYou.Models.Entities.ClaimStatus.Approved => "badge-found",
+                                    BackToYou.Models.Entities.ClaimStatus.Rejected => "badge-lost",
+                                    _ => "bg-light text-dark"
+                                };
+                            }
+                            <span class="status-badge @statusBadge">@claim.Status</span>
+                        </div>
+
+                        <div class="card-body p-4">
+                            <!-- Linked Item Info -->
+                            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                                @if (!string.IsNullOrEmpty(claim.Item?.ImagePath))
+                                {
+                                    <img src="@claim.Item.ImagePath" class="rounded-3" style="width: 50px; height: 50px; object-fit: cover;" alt="@claim.Item.Title" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-3 bg-light p-2 text-muted d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <i class="bi bi-box fs-4"></i>
+                                    </div>
+                                }
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold mb-0">
+                                        <a asp-controller="Items" asp-action="Details" asp-route-id="@claim.ItemId" target="_blank" class="text-dark text-decoration-none">
+                                            @claim.Item?.Title <i class="bi bi-box-arrow-up-right small text-muted"></i>
+                                        </a>
+                                    </h6>
+                                    <span class="small text-muted"><i class="bi bi-geo-alt me-1 text-danger"></i> @claim.Item?.Location</span>
+                                </div>
+                            </div>
+
+                            <!-- Claimant Profile Info -->
+                            <div class="p-3 bg-light rounded-3 mb-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Claimant Student Profile:</span>
+                                <div class="fw-bold text-dark">@claim.Claimer?.FullName (@(claim.Claimer?.StudentRollNumber ?? "ID N/A"))</div>
+                                <div class="small text-muted">Dept: @(claim.Claimer?.Department ?? "General") &bull; Phone: @(claim.Claimer?.PhoneNumber ?? "N/A")</div>
+                            </div>
+
+                            <!-- Confidential Proof Details -->
+                            <div class="mb-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Confidential Proof Description:</span>
+                                <div class="small text-dark p-3 bg-white border rounded-3 mb-1">
+                                    @claim.DescriptionProof
+                                </div>
+                                @if (!string.IsNullOrEmpty(claim.ProofImagePath))
+                                {
+                                    <a href="@claim.ProofImagePath" target="_blank" class="small text-primary text-decoration-none d-inline-flex align-items-center gap-1 mt-1">
+                                        <i class="bi bi-paperclip"></i> View Attached Proof Document
+                                    </a>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(claim.AdminRemarks))
+                            {
+                                <div class="mb-3 p-2 bg-light rounded border small">
+                                    <strong>Admin Remarks:</strong> @claim.AdminRemarks
+                                </div>
+                            }
+
+                            <!-- Verification Form Actions -->
+                            <form asp-action="ReviewClaim" method="post" class="border-top pt-3">
+                                <input type="hidden" name="claimId" value="@claim.Id" />
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-muted">Decision Remarks / Handover Instructions:</label>
+                                    <input type="text" name="adminRemarks" class="form-control form-control-sm" placeholder="e.g. Approved. Pick up from Room 102 Security Office." value="@claim.AdminRemarks" />
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" name="status" value="Approved" class="btn btn-primary btn-sm flex-fill">
+                                        <i class="bi bi-check2-circle me-1"></i> Approve Handover
+                                    </button>
+                                    <button type="submit" name="status" value="Rejected" class="btn btn-outline-danger btn-sm flex-fill">
+                                        <i class="bi bi-x-circle me-1"></i> Reject Claim
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card bg-white rounded-4 border text-center py-5 p-4">
+            <i class="bi bi-patch-check display-4 text-muted mb-3 d-block"></i>
+            <h4 class="fw-bold mb-2">No claims found</h4>
+            <p class="text-muted small">No ownership claims match the selected filter category.</p>
+        </div>
+    }
+</div>

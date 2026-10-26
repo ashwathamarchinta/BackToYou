@@ -1,0 +1,70 @@
+@model IEnumerable<BackToYou.Models.ViewModels.UserManagementViewModel>
+@{
+    ViewData["Title"] = "Manage Students & Staff";
+}
+
+<div class="container py-4 py-lg-5">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+        <div>
+            <h1 class="page-title mb-1">Registered Campus Users</h1>
+            <p class="section-subtitle mb-0">Directory of verified students, faculty, and administrators registered on BackToYou.</p>
+        </div>
+        <div class="dashboard-nav-pills">
+            <a asp-action="Dashboard" class="nav-link">Overview</a>
+            <a asp-action="ManageClaims" class="nav-link">Claims</a>
+            <a asp-action="ManageItems" class="nav-link">Items</a>
+            <a asp-action="ManageUsers" class="nav-link active">Users</a>
+        </div>
+    </div>
+
+    <div class="card bg-white rounded-4 border shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>User Profile</th>
+                        <th>Roll / ID Number</th>
+                        <th>Department</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Joined Date</th>
+                        <th class="text-end">Portal Activity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
+                                        @((user.FullName?[0] ?? 'U').ToString().ToUpper())
+                                    </div>
+                                    <div>
+                                        <span class="fw-semibold text-dark d-block">@user.FullName</span>
+                                        <span class="small text-muted">@user.Email</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="small fw-semibold text-dark">@(user.StudentRollNumber ?? "N/A")</td>
+                            <td class="small text-muted">@(user.Department ?? "N/A")</td>
+                            <td class="small text-muted">@(user.PhoneNumber ?? "N/A")</td>
+                            <td>
+                                <span class="badge @(user.Roles.Contains("Admin") ? "bg-danger" : "bg-primary") rounded-pill px-3 py-1 small">
+                                    @user.Roles
+                                </span>
+                            </td>
+                            <td class="small text-muted">@user.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td class="text-end small">
+                                <span class="badge bg-light text-dark border px-2 py-1">
+                                    @user.ReportedCount Reports &bull; @user.ClaimsCount Claims
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

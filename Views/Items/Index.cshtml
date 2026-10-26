@@ -1,0 +1,166 @@
+@model BackToYou.Models.ViewModels.ItemFilterViewModel
+@{
+    ViewData["Title"] = "Campus Directory";
+}
+
+<div class="container py-4 py-lg-5">
+    <!-- Header Section -->
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+        <div>
+            <h1 class="page-title">Find what you're looking for</h1>
+            <p class="section-subtitle mb-0">Search through active lost &amp; found listings across university grounds.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" asp-route-type="Lost" class="btn btn-outline-danger btn-sm px-3">
+                <i class="bi bi-exclamation-circle me-1"></i> Report Lost
+            </a>
+            <a asp-action="Create" asp-route-type="Found" class="btn btn-primary btn-sm px-3">
+                <i class="bi bi-check-circle me-1"></i> Report Found
+            </a>
+        </div>
+    </div>
+
+    <!-- Modern Search & Filter Panel -->
+    <div class="card p-3 p-lg-4 mb-4 rounded-4 border shadow-sm bg-white">
+        <form asp-action="Index" method="get">
+            <div class="row g-3 align-items-center">
+                <!-- Keyword Search -->
+                <div class="col-lg-5 col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control border-start-0" placeholder="Search by item, brand, or location..." />
+                    </div>
+                </div>
+
+                <!-- Category Dropdown -->
+                <div class="col-lg-3 col-md-3">
+                    <select name="categoryId" asp-items="Model.Categories" class="form-select">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+
+                <!-- Type Selector -->
+                <div class="col-lg-2 col-md-3">
+                    <select name="type" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="Lost" selected="@(Model.Type == BackToYou.Models.Entities.ItemType.Lost)">Lost Only</option>
+                        <option value="Found" selected="@(Model.Type == BackToYou.Models.Entities.ItemType.Found)">Found Only</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="col-lg-2 col-md-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill">
+                        <i class="bi bi-funnel me-1"></i> Apply
+                    </button>
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.CategoryId.HasValue || Model.Type.HasValue)
+                    {
+                        <a asp-action="Index" class="btn btn-secondary px-3" title="Clear all filters">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Count Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="small fw-semibold text-muted">
+            Found <span class="text-dark">@Model.Items.Count()</span> listing@(Model.Items.Count() == 1 ? "" : "s")
+        </div>
+    </div>
+
+    <!-- Items Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @if (Model.Items.Any())
+        {
+            foreach (var item in Model.Items)
+            {
+                <div class="col">
+                    <div class="item-card">
+                        <!-- Media frame with floating badge -->
+                        <div class="item-card-media">
+                            @if (item.Type == BackToYou.Models.Entities.ItemType.Lost)
+                            {
+                                <span class="status-badge badge-lost badge-floating">
+                                    <i class="bi bi-exclamation-circle-fill"></i> Lost
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge badge-found badge-floating">
+                                    <i class="bi bi-check-circle-fill"></i> Found
+                                </span>
+                            }
+
+                            @if (!string.IsNullOrEmpty(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath" alt="@item.Title" loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="item-card-placeholder">
+                                    <i class="bi @(item.Category?.IconClass ?? "bi-box")"></i>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Content Body -->
+                        <div class="item-card-body">
+                            <div class="item-card-category">@(item.Category?.Name ?? "General")</div>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="item-card-title">
+                                @item.Title
+                            </a>
+
+                            <div class="item-card-meta">
+                                <div class="item-card-meta-row">
+                                    <i class="bi bi-geo-alt text-muted"></i>
+                                    <span>@item.Location</span>
+                                </div>
+                                <div class="item-card-meta-row">
+                                    <i class="bi bi-calendar3 text-muted"></i>
+                                    <span>@item.EventDate.ToString("MMM dd, yyyy")</span>
+                                </div>
+                            </div>
+
+                            <div class="item-card-footer">
+                                @{
+                                    var statusClass = item.Status switch
+                                    {
+                                        BackToYou.Models.Entities.ItemStatus.Reported => "badge-approved",
+                                        BackToYou.Models.Entities.ItemStatus.UnderClaim => "badge-pending",
+                                        BackToYou.Models.Entities.ItemStatus.Claimed => "badge-found",
+                                        BackToYou.Models.Entities.ItemStatus.Closed => "bg-light text-secondary border",
+                                        _ => "bg-light text-dark"
+                                    };
+                                }
+                                <span class="status-badge @statusClass">@item.Status</span>
+
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn-card-view">
+                                    <span>Details</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="text-center py-5 bg-white rounded-4 border p-4">
+                    <i class="bi bi-search display-3 text-muted opacity-50 mb-3 d-block"></i>
+                    <h4 class="fw-bold mb-2">No matching listings found</h4>
+                    <p class="text-muted small mb-4" style="max-width: 420px; margin-inline: auto;">
+                        Try searching with different keywords, selecting all categories, or clear filters to see all campus items.
+                    </p>
+                    <a asp-action="Index" class="btn btn-secondary btn-sm px-4">
+                        Reset All Filters
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

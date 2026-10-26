@@ -1,0 +1,51 @@
+# =========================================================
+# BACKTOYOU - ASP.NET Core 10.0 MVC
+# =========================================================
+
+# Build and Compilation Artifacts
+**/bin/
+**/obj/
+**/out/
+**/artifacts/
+publish/
+
+# Local Database Files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Local Environment & Secrets
+.env
+.env.*
+!.env.example
+**/appsettings.Development.json
+**/appsettings.Local.json
+secrets.json
+secrets.*.json
+
+# User Uploaded Content in Production/Local testing
+wwwroot/uploads/items/*
+!wwwroot/uploads/items/.gitkeep
+wwwroot/uploads/proofs/*
+!wwwroot/uploads/proofs/.gitkeep
+
+# NuGet packages & caches
+*.nupkg
+*.snupkg
+packages/
+
+# IDE & OS
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs
+*.log
+logs/

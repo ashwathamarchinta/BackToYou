@@ -1,0 +1,216 @@
+@model BackToYou.Models.Entities.Item
+@{
+    ViewData["Title"] = Model.Title;
+    bool isReporter = ViewBag.IsReporter ?? false;
+    bool hasClaimed = ViewBag.HasClaimed ?? false;
+}
+
+<div class="container py-4 py-lg-5">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Items" asp-action="Index" class="text-decoration-none text-muted">Directory</a></li>
+            <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">@Model.Title</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4 g-lg-5">
+        <!-- Left: Product Image Stage -->
+        <div class="col-lg-6">
+            <div class="item-details-container p-3 mb-4">
+                <div class="item-gallery-frame">
+                    @if (Model.Type == BackToYou.Models.Entities.ItemType.Lost)
+                    {
+                        <span class="status-badge badge-lost badge-floating fs-6 px-3 py-2">
+                            <i class="bi bi-exclamation-circle-fill"></i> LOST ITEM
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="status-badge badge-found badge-floating fs-6 px-3 py-2">
+                            <i class="bi bi-check-circle-fill"></i> FOUND ITEM
+                        </span>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ImagePath))
+                    {
+                        <img src="@Model.ImagePath" alt="@Model.Title" class="img-fluid" />
+                    }
+                    else
+                    {
+                        <div class="text-center p-5">
+                            <i class="bi @(Model.Category?.IconClass ?? "bi-box") display-1 text-muted opacity-25"></i>
+                            <p class="small text-muted mt-3 mb-0">No photographic evidence attached with this listing.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Campus Security Notice -->
+            <div class="p-3 rounded-4 bg-white border d-flex align-items-center gap-3">
+                <div class="rounded-circle p-2 bg-light text-primary flex-shrink-0">
+                    <i class="bi bi-shield-check fs-4"></i>
+                </div>
+                <div class="small">
+                    <div class="fw-semibold text-dark">Verified Campus Handover Protocol</div>
+                    <div class="text-muted">Direct claims are held for security verification before physical return.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Details & Claim Actions -->
+        <div class="col-lg-6">
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill small fw-semibold">
+                    <i class="bi @(Model.Category?.IconClass ?? "bi-tag") me-1"></i> @(Model.Category?.Name ?? "General")
+                </span>
+
+                @{
+                    var statusBadge = Model.Status switch
+                    {
+                        BackToYou.Models.Entities.ItemStatus.Reported => "badge-approved",
+                        BackToYou.Models.Entities.ItemStatus.UnderClaim => "badge-pending",
+                        BackToYou.Models.Entities.ItemStatus.Claimed => "badge-found",
+                        BackToYou.Models.Entities.ItemStatus.Closed => "bg-light text-secondary border",
+                        _ => "bg-light text-dark"
+                    };
+                }
+                <span class="status-badge @statusBadge">
+                    Status: @Model.Status
+                </span>
+            </div>
+
+            <h1 class="page-title mb-3" style="font-size: 2.25rem;">@Model.Title</h1>
+
+            <!-- Metadata Rows -->
+            <div class="bg-white rounded-4 border p-3 mb-4">
+                <div class="item-info-row">
+                    <div class="item-info-icon">
+                        <i class="bi bi-geo-alt-fill text-danger"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted fw-medium">Campus Location</div>
+                        <div class="fw-semibold text-dark">@Model.Location</div>
+                    </div>
+                </div>
+
+                <div class="item-info-row">
+                    <div class="item-info-icon">
+                        <i class="bi bi-calendar3 text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted fw-medium">Date Lost / Found</div>
+                        <div class="fw-semibold text-dark">@Model.EventDate.ToString("dddd, MMMM dd, yyyy")</div>
+                    </div>
+                </div>
+
+                <div class="item-info-row" style="border-bottom: none;">
+                    <div class="item-info-icon">
+                        <i class="bi bi-clock-history text-secondary"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted fw-medium">Reported To Portal</div>
+                        <div class="fw-semibold text-dark">@Model.CreatedAt.ToString("MMM dd, yyyy - hh:mm tt")</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description Block -->
+            <div class="mb-4">
+                <h6 class="text-uppercase small fw-bold text-muted mb-2" style="letter-spacing: 0.08em;">Description</h6>
+                <div class="p-3 bg-white rounded-4 border text-dark" style="line-height: 1.6; white-space: pre-line;">
+                    @Model.Description
+                </div>
+            </div>
+
+            <!-- Action Box -->
+            <div class="card p-4 rounded-4 border mb-4 bg-white shadow-sm">
+                @if (Model.Status == BackToYou.Models.Entities.ItemStatus.Claimed)
+                {
+                    <div class="d-flex align-items-center gap-3 text-success">
+                        <i class="bi bi-check-circle-fill fs-2"></i>
+                        <div>
+                            <div class="fw-bold">Item Claimed &amp; Returned</div>
+                            <div class="small text-muted">This item has been safely returned to its verified owner.</div>
+                        </div>
+                    </div>
+                }
+                else if (Model.Status == BackToYou.Models.Entities.ItemStatus.Closed)
+                {
+                    <div class="d-flex align-items-center gap-3 text-secondary">
+                        <i class="bi bi-lock-fill fs-2"></i>
+                        <div>
+                            <div class="fw-bold">Listing Closed</div>
+                            <div class="small text-muted">This report has been resolved and archived.</div>
+                        </div>
+                    </div>
+                }
+                else if (isReporter)
+                {
+                    <div class="mb-3">
+                        <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-2 rounded-pill small mb-2">
+                            <i class="bi bi-person-check me-1"></i> Your Listing
+                        </span>
+                        <p class="small text-muted mb-0">You posted this report. You can mark it resolved when returned.</p>
+                    </div>
+
+                    <form asp-action="CloseStatus" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill py-2" onclick="return confirm('Mark this item as resolved/closed?');">
+                            <i class="bi bi-check2-circle me-1"></i> Mark as Resolved / Closed
+                        </button>
+                    </form>
+                }
+                else if (hasClaimed)
+                {
+                    <div class="p-3 rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-25 mb-3">
+                        <div class="fw-bold text-dark mb-1"><i class="bi bi-hourglass-split me-1 text-warning"></i> Claim Pending Review</div>
+                        <div class="small text-muted">You have already submitted an ownership verification request for this item.</div>
+                    </div>
+                    <a asp-controller="Claims" asp-action="MyClaims" class="btn btn-primary w-100 rounded-pill py-2">
+                        <i class="bi bi-patch-check me-1"></i> View Claim Status
+                    </a>
+                }
+                else
+                {
+                    @if (Model.Type == BackToYou.Models.Entities.ItemType.Found)
+                    {
+                        <div class="mb-3">
+                            <h5 class="fw-bold mb-1">Is this your item?</h5>
+                            <p class="small text-muted mb-0">Submit private ownership proof (serial number, wallpaper hint, unique marks) for admin verification.</p>
+                        </div>
+                        <a asp-controller="Claims" asp-action="SubmitClaim" asp-route-itemId="@Model.Id" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">
+                            <i class="bi bi-patch-question me-1"></i> Claim This Item
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <h5 class="fw-bold mb-1">Did you find this item?</h5>
+                            <p class="small text-muted mb-0">Help reunite the student with their lost item by filing a found report.</p>
+                        </div>
+                        <a asp-action="Create" asp-route-type="Found" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">
+                            <i class="bi bi-check-circle me-1"></i> I Found This Item
+                        </a>
+                    }
+                }
+            </div>
+
+            <!-- Reporter Card -->
+            <div class="d-flex align-items-center justify-content-between p-3 bg-white rounded-4 border">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 44px; height: 44px;">
+                        @((Model.Reporter?.FullName?[0] ?? 'C').ToString().ToUpper())
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">@(Model.Reporter?.FullName ?? "Campus Member")</div>
+                        <div class="small text-muted">@(Model.Reporter?.Department ?? "Campus Community")</div>
+                    </div>
+                </div>
+                <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 small fw-semibold">
+                    <i class="bi bi-shield-check me-1"></i> Verified Reporter
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

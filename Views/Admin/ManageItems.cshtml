@@ -1,0 +1,111 @@
+@model IEnumerable<BackToYou.Models.Entities.Item>
+@{
+    ViewData["Title"] = "Moderate Items";
+    var selectedType = ViewBag.SelectedType as BackToYou.Models.Entities.ItemType?;
+    var selectedStatus = ViewBag.SelectedStatus as BackToYou.Models.Entities.ItemStatus?;
+}
+
+<div class="container py-4 py-lg-5">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+        <div>
+            <h1 class="page-title mb-1">Campus Items Moderation</h1>
+            <p class="section-subtitle mb-0">Review, monitor, and remove reported lost and found listings across all university categories.</p>
+        </div>
+        <div class="dashboard-nav-pills">
+            <a asp-action="Dashboard" class="nav-link">Overview</a>
+            <a asp-action="ManageClaims" class="nav-link">Claims</a>
+            <a asp-action="ManageItems" class="nav-link active">Items</a>
+            <a asp-action="ManageUsers" class="nav-link">Users</a>
+        </div>
+    </div>
+
+    <!-- Type Filters -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a asp-action="ManageItems" class="btn btn-sm @(selectedType == null ? "btn-primary" : "btn-secondary")">All Types</a>
+        <a asp-action="ManageItems" asp-route-type="Lost" class="btn btn-sm @(selectedType == BackToYou.Models.Entities.ItemType.Lost ? "btn-primary" : "btn-secondary")">Lost Items</a>
+        <a asp-action="ManageItems" asp-route-type="Found" class="btn btn-sm @(selectedType == BackToYou.Models.Entities.ItemType.Found ? "btn-primary" : "btn-secondary")">Found Items</a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="card bg-white rounded-4 border shadow-sm overflow-hidden">
+            <div class="table-responsive">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Item Listing</th>
+                            <th>Type</th>
+                            <th>Reporter</th>
+                            <th>Location</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        @if (!string.IsNullOrEmpty(item.ImagePath))
+                                        {
+                                            <img src="@item.ImagePath" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;" alt="@item.Title" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-3 bg-light d-flex align-items-center justify-content-center text-muted" style="width: 44px; height: 44px;">
+                                                <i class="bi @(item.Category?.IconClass ?? "bi-box")"></i>
+                                            </div>
+                                        }
+                                        <div>
+                                            <a asp-controller="Items" asp-action="Details" asp-route-id="@item.Id" target="_blank" class="fw-semibold text-dark text-decoration-none">
+                                                @item.Title
+                                            </a>
+                                            <span class="d-block small text-muted">@(item.Category?.Name ?? "General")</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge @(item.Type == BackToYou.Models.Entities.ItemType.Lost ? "badge-lost" : "badge-found")">
+                                        @item.Type
+                                    </span>
+                                </td>
+                                <td class="small">
+                                    <span class="fw-semibold text-dark">@(item.Reporter?.FullName ?? "Member")</span>
+                                    <span class="d-block text-muted">@item.Reporter?.Email</span>
+                                </td>
+                                <td class="small text-muted">@item.Location</td>
+                                <td class="small text-muted">@item.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="badge bg-light text-secondary border small">@item.Status</span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        <a asp-controller="Items" asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary btn-sm px-3" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <form asp-action="DeleteItem" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Permanently remove this item listing?');">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm px-3" title="Delete Item">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card bg-white rounded-4 border text-center py-5 p-4">
+            <i class="bi bi-boxes display-4 text-muted mb-3 d-block"></i>
+            <h4 class="fw-bold mb-2">No items found</h4>
+            <p class="text-muted small">No items match the selected moderation filter.</p>
+        </div>
+    }
+</div>

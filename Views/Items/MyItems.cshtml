@@ -1,0 +1,165 @@
+@model IEnumerable<BackToYou.Models.Entities.Item>
+@{
+    ViewData["Title"] = "My Reported Items";
+    var totalCount = Model?.Count() ?? 0;
+    var lostCount = Model?.Count(i => i.Type == BackToYou.Models.Entities.ItemType.Lost) ?? 0;
+    var foundCount = Model?.Count(i => i.Type == BackToYou.Models.Entities.ItemType.Found) ?? 0;
+    var resolvedCount = Model?.Count(i => i.Status == BackToYou.Models.Entities.ItemStatus.Claimed || i.Status == BackToYou.Models.Entities.ItemStatus.Closed) ?? 0;
+}
+
+<div class="container py-4 py-lg-5">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+        <div>
+            <h1 class="page-title mb-1">My Reported Items</h1>
+            <p class="section-subtitle mb-0">Track, manage, and update the status of listings posted from your account.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" asp-route-type="Lost" class="btn btn-outline-danger btn-sm px-3">
+                <i class="bi bi-exclamation-circle me-1"></i> Report Lost
+            </a>
+            <a asp-action="Create" asp-route-type="Found" class="btn btn-primary btn-sm px-3">
+                <i class="bi bi-check-circle me-1"></i> Report Found
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="dashboard-stat-card">
+                <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em;">Total Listings</span>
+                <div class="dashboard-stat-number">@totalCount</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="dashboard-stat-card">
+                <span class="text-danger small fw-semibold text-uppercase" style="letter-spacing: 0.05em;">Lost Reports</span>
+                <div class="dashboard-stat-number text-danger">@lostCount</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="dashboard-stat-card">
+                <span class="text-success small fw-semibold text-uppercase" style="letter-spacing: 0.05em;">Found Items</span>
+                <div class="dashboard-stat-number text-success">@foundCount</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="dashboard-stat-card">
+                <span class="text-primary small fw-semibold text-uppercase" style="letter-spacing: 0.05em;">Resolved / Closed</span>
+                <div class="dashboard-stat-number text-primary">@resolvedCount</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listings Table / Cards -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="card bg-white rounded-4 border shadow-sm overflow-hidden">
+            <div class="table-responsive">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Item Details</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Campus Location</th>
+                            <th>Report Date</th>
+                            <th>Status</th>
+                            <th>Claims</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        @if (!string.IsNullOrEmpty(item.ImagePath))
+                                        {
+                                            <img src="@item.ImagePath" class="rounded-3" style="width: 46px; height: 46px; object-fit: cover;" alt="@item.Title" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-3 bg-light d-flex align-items-center justify-content-center text-muted" style="width: 46px; height: 46px;">
+                                                <i class="bi @(item.Category?.IconClass ?? "bi-box") fs-5"></i>
+                                            </div>
+                                        }
+                                        <div>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="fw-semibold text-dark text-decoration-none">
+                                                @item.Title
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (item.Type == BackToYou.Models.Entities.ItemType.Lost)
+                                    {
+                                        <span class="status-badge badge-lost">LOST</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge badge-found">FOUND</span>
+                                    }
+                                </td>
+                                <td class="small text-muted">@(item.Category?.Name ?? "General")</td>
+                                <td class="small text-muted">@item.Location</td>
+                                <td class="small text-muted">@item.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @{
+                                        var statusClass = item.Status switch
+                                        {
+                                            BackToYou.Models.Entities.ItemStatus.Reported => "badge-approved",
+                                            BackToYou.Models.Entities.ItemStatus.UnderClaim => "badge-pending",
+                                            BackToYou.Models.Entities.ItemStatus.Claimed => "badge-found",
+                                            BackToYou.Models.Entities.ItemStatus.Closed => "bg-light text-secondary border",
+                                            _ => "bg-light text-dark"
+                                        };
+                                    }
+                                    <span class="status-badge @statusClass">@item.Status</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border px-2 py-1">
+                                        @item.Claims.Count claim(s)
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary btn-sm px-3" title="View Details">
+                                            <i class="bi bi-eye me-1"></i> View
+                                        </a>
+                                        @if (item.Status != BackToYou.Models.Entities.ItemStatus.Closed)
+                                        {
+                                            <form asp-action="CloseStatus" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-secondary btn-sm px-3" title="Mark Closed" onclick="return confirm('Mark this item as resolved/closed?');">
+                                                    <i class="bi bi-check2"></i> Close
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card bg-white rounded-4 border text-center py-5 p-4">
+            <i class="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
+            <h4 class="fw-bold mb-2">You haven't reported any items yet</h4>
+            <p class="text-muted small mb-4">Did you lose or find something on campus? File a report to notify the university community.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a asp-action="Create" asp-route-type="Lost" class="btn btn-outline-danger btn-sm px-4">
+                    Report Lost Item
+                </a>
+                <a asp-action="Create" asp-route-type="Found" class="btn btn-primary btn-sm px-4">
+                    Report Found Item
+                </a>
+            </div>
+        </div>
+    }
+</div>

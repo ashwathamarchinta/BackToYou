@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="BackToYou — Modern Campus Lost &amp; Found Portal. Report what you've lost, share what you've found, and help belongings make their way BackToYou." />
+    <title>@ViewData["Title"] - BackToYou | Campus Lost &amp; Found</title>
+
+    <!-- Google Fonts: DM Serif Display (Editorial Serif) + Inter (Clean Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS (Base Grid & Utilities) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom Design System Stylesheet -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- ==================== Modern Premium Navbar ==================== -->
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg site-navbar" aria-label="Main navigation">
+            <div class="container">
+                <!-- Brand: Transparent SVG Mark + Serif Wordmark -->
+                <a class="brand-link" asp-controller="Home" asp-action="Index" aria-label="BackToYou Home">
+                    <img src="/images/branding/backtoyou-mark.svg" alt="BackToYou" class="brand-mark-svg" />
+                    <span class="brand-text">BackToYou<span class="brand-dot">.</span></span>
+                </a>
+
+                <!-- Mobile Toggler -->
+                <button class="navbar-toggler border-0 p-2 text-white"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarContent"
+                        aria-controls="navbarContent"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <i class="bi bi-list fs-2 text-white"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <!-- Center Navigation Links -->
+                    <ul class="navbar-nav mx-auto site-nav-links my-3 my-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door opacity-75"></i>Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Items" asp-action="Index">
+                                <i class="bi bi-search opacity-75"></i>Browse Items
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Items" asp-action="Create" asp-route-type="Lost">
+                                <i class="bi bi-exclamation-circle text-danger opacity-75"></i>Report Lost
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Items" asp-action="Create" asp-route-type="Found">
+                                <i class="bi bi-check-circle text-success opacity-75"></i>Report Found
+                            </a>
+                        </li>
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="activityDropdown" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-clock-history opacity-75"></i>My Activity
+                                </a>
+                                <ul class="dropdown-menu shadow-lg border-0 rounded-3 mt-2" aria-labelledby="activityDropdown">
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Items" asp-action="MyItems">
+                                            <i class="bi bi-collection text-primary me-2"></i>My Reported Items
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Claims" asp-action="MyClaims">
+                                            <i class="bi bi-patch-check text-warning me-2"></i>My Submitted Claims
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false" style="color: #63B8F4 !important;">
+                                    <i class="bi bi-shield-lock me-1"></i>Admin
+                                </a>
+                                <ul class="dropdown-menu shadow-lg border-0 rounded-3 mt-2" aria-labelledby="adminDropdown">
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Admin" asp-action="Dashboard">
+                                            <i class="bi bi-speedometer2 text-primary me-2"></i>Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Admin" asp-action="ManageClaims">
+                                            <i class="bi bi-clipboard-check text-warning me-2"></i>Moderate Claims
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Admin" asp-action="ManageItems">
+                                            <i class="bi bi-boxes text-info me-2"></i>Moderate Items
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Admin" asp-action="ManageUsers">
+                                            <i class="bi bi-people text-secondary me-2"></i>Registered Users
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+
+                    <!-- Right Auth Actions -->
+                    <div class="d-flex align-items-center gap-2">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <div class="dropdown">
+                                <button class="btn nav-user-dropdown dropdown-toggle d-flex align-items-center gap-2"
+                                        type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="rounded-circle bg-white text-dark d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 0.75rem; font-weight: 700;">
+                                        @((User.Identity.Name?[0] ?? 'U').ToString().ToUpper())
+                                    </div>
+                                    <span>@User.Identity.Name?.Split('@')[0]</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2" aria-labelledby="userMenu">
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Account" asp-action="Profile">
+                                            <i class="bi bi-person text-primary me-2"></i>My Profile
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item py-2 text-danger">
+                                                <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <a class="btn-nav-action btn-nav-login" asp-controller="Account" asp-action="Login">
+                                Sign In
+                            </a>
+                            <a class="btn-nav-action btn-nav-register" asp-controller="Account" asp-action="Register">
+                                Register
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==================== Main Application Content ==================== -->
+    <main role="main" class="app-main-content">
+        <!-- Flash Alert Messages -->
+        @if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null || TempData["InfoMessage"] != null)
+        {
+            <div class="container pt-3">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 rounded-4 shadow-sm border-0" role="alert">
+                        <i class="bi bi-check-circle-fill text-success fs-5 flex-shrink-0"></i>
+                        <div class="fw-medium">@TempData["SuccessMessage"]</div>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 rounded-4 shadow-sm border-0" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill text-danger fs-5 flex-shrink-0"></i>
+                        <div class="fw-medium">@TempData["ErrorMessage"]</div>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["InfoMessage"] != null)
+                {
+                    <div class="alert alert-info alert-dismissible fade show d-flex align-items-center gap-2 rounded-4 shadow-sm border-0" role="alert">
+                        <i class="bi bi-info-circle-fill text-info fs-5 flex-shrink-0"></i>
+                        <div class="fw-medium">@TempData["InfoMessage"]</div>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+            </div>
+        }
+
+        @RenderBody()
+    </main>
+
+    <!-- ==================== Modern Editorial Branded Footer ==================== -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row gy-4 align-items-start">
+                <div class="col-lg-5 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <img src="/images/branding/backtoyou-mark.svg" alt="BackToYou" style="width: 32px; height: 32px;" />
+                        <span class="footer-brand-text">BackToYou<span style="color: #63B8F4;">.</span></span>
+                    </div>
+                    <p class="small pe-lg-4" style="color: rgba(248, 245, 237, 0.72); line-height: 1.65; max-width: 420px;">
+                        The verified campus lost &amp; found network. Helping students, faculty, and staff safely report, search, and reclaim lost personal belongings across university grounds.
+                    </p>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h6 class="text-uppercase small fw-bold mb-3" style="color: #63B8F4; letter-spacing: 0.08em;">Directory</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
+                        <li><a class="footer-link" asp-controller="Items" asp-action="Index">Browse All Items</a></li>
+                        <li><a class="footer-link" asp-controller="Items" asp-action="Create" asp-route-type="Lost">Report Lost Item</a></li>
+                        <li><a class="footer-link" asp-controller="Items" asp-action="Create" asp-route-type="Found">Report Found Item</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h6 class="text-uppercase small fw-bold mb-3" style="color: #63B8F4; letter-spacing: 0.08em;">Portal</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
+                        <li><a class="footer-link" asp-controller="Account" asp-action="Login">Sign In</a></li>
+                        <li><a class="footer-link" asp-controller="Account" asp-action="Register">Create Account</a></li>
+                        <li><a class="footer-link" asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-12">
+                    <div class="p-3 rounded-4" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+                        <span class="small fw-semibold d-block mb-1 text-white">Campus Security Dispatch</span>
+                        <p class="small mb-0" style="color: rgba(248, 245, 237, 0.65);">
+                            Items verified by administration are stored safely at Central Security Office (Room 102).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="footer-divider" />
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 small" style="color: rgba(248, 245, 237, 0.5);">
+                <div>&copy; @DateTime.UtcNow.Year BackToYou. All rights reserved.</div>
+                <div>Designed with editorial typography and human-centered design.</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

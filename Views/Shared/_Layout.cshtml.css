@@ -1,0 +1,21 @@
+/* Layout-scoped overrides — defers to site.css design system */
+
+/* Remove any old btn-primary override so site.css wins */
+.btn-primary {
+    /* inherited from site.css */
+}
+
+/* Ensure anchor color uses brand */
+a {
+    color: var(--brand-blue-mid, #1e5bb5);
+}
+
+a:hover {
+    color: var(--brand-blue-light, #3b82f6);
+}
+
+/* Remove absolute footer positioning (handled by flexbox min-vh-100) */
+.footer {
+    position: static;
+    line-height: inherit;
+}

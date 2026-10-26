@@ -1,0 +1,17 @@
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/out
+**/.dockerignore
+**/TestRunner
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/appsettings.Development.json
+**/*.nupkg
+**/run_all_tests.ps1
+Dockerfile*
+README*

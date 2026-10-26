@@ -1,0 +1,88 @@
+@model BackToYou.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="auth-split-wrapper">
+    <div class="auth-container">
+        <!-- Left Brand Side Panel (Desktop) -->
+        <div class="auth-brand-panel">
+            <div>
+                <a class="brand-link mb-4 d-inline-flex" asp-controller="Home" asp-action="Index">
+                    <img src="/images/branding/backtoyou-mark.svg" alt="BackToYou" class="brand-mark-svg" style="width: 38px; height: 38px;" />
+                    <span class="brand-text" style="font-size: 1.85rem;">BackToYou<span class="brand-dot">.</span></span>
+                </a>
+
+                <h2 class="auth-headline">
+                    Let's get it<br />
+                    <span style="color: #63B8F4; font-style: italic;">BackToYou</span>.
+                </h2>
+                <p class="small" style="color: rgba(248, 245, 237, 0.75); line-height: 1.6;">
+                    The verified campus directory for tracking, claiming, and returning lost belongings.
+                </p>
+            </div>
+
+            <div class="d-flex flex-column gap-3 pt-4 border-top" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+                <div class="d-flex align-items-center gap-3 small" style="color: rgba(248, 245, 237, 0.85);">
+                    <i class="bi bi-shield-check text-info fs-5"></i>
+                    <span>Encrypted ownership proof verification</span>
+                </div>
+                <div class="d-flex align-items-center gap-3 small" style="color: rgba(248, 245, 237, 0.85);">
+                    <i class="bi bi-geo-alt text-info fs-5"></i>
+                    <span>Centralized campus security handover</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Authentication Form -->
+        <div class="auth-card-body">
+            <h3 class="fw-bold mb-1" style="font-family: var(--font-sans); color: var(--navy-950);">Welcome back</h3>
+            <p class="small text-muted mb-4">Enter your credentials to access your campus account.</p>
+
+            <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 small rounded-3 mb-3" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">University Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                        <input asp-for="Email" class="form-control border-start-0" placeholder="student@campus.edu" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                        <input asp-for="Password" class="form-control border-start-0" placeholder="••••••••" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4 form-check">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label asp-for="RememberMe" class="form-check-label small text-muted"></label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold mb-3">
+                    Sign In to Portal
+                </button>
+            </form>
+
+            <div class="text-center pt-3 border-top small text-muted">
+                <span>New to BackToYou? </span>
+                <a asp-action="Register" class="fw-bold text-decoration-none text-primary">Create an account</a>
+            </div>
+
+            <!-- Demo Credentials Box -->
+            <div class="mt-4 p-3 rounded-3 small bg-light border">
+                <span class="fw-bold d-block mb-1 text-dark">
+                    <i class="bi bi-key-fill text-warning me-1"></i> Quick Demo Logins:
+                </span>
+                <div class="text-muted"><strong>Admin:</strong> admin@campus.edu / Admin@123</div>
+                <div class="text-muted"><strong>Student:</strong> student@campus.edu / Student@123</div>
+            </div>
+        </div>
+    </div>
+</div>

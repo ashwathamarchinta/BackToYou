@@ -1,0 +1,30 @@
+# ─── Vercel Container Deployment (Fluid Compute) ──────────────────────────
+# https://vercel.com/docs/functions/runtimes/docker
+
+# ─── Stage 1: Build ───────────────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+WORKDIR /src
+
+COPY BackToYou.csproj ./
+RUN dotnet restore BackToYou.csproj
+
+COPY . ./
+RUN dotnet publish BackToYou.csproj \
+      --configuration Release \
+      --output /app/publish \
+      --no-restore
+
+# ─── Stage 2: Runtime ─────────────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS runtime
+WORKDIR /app
+
+COPY --from=build /app/publish ./
+
+# Vercel injects PORT at runtime; app binds to 0.0.0.0:$PORT (set in Program.cs)
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Vercel requires the container to expose port 3000 by default,
+# but the actual PORT is injected at runtime via the env var.
+EXPOSE 3000
+
+ENTRYPOINT ["dotnet", "BackToYou.dll"]

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Subtle circular return arrow background path -->
+  <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="210 50" transform="rotate(-30 50 50)"/>
+  
+  <!-- Arrow Head -->
+  <path d="M22 28L14 36L26 40" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Item Luggage/Price Tag -->
+  <g transform="translate(50,52) rotate(-35) translate(-22,-30)">
+    <!-- Tag Body -->
+    <path d="M8 20L22 6C23.5 4.5 25.5 3.5 27.5 3.5H36C40.5 3.5 44 7 44 11.5V48C44 52.5 40.5 56 36 56H8C3.5 56 0 52.5 0 48V28C0 25 1.5 22 8 20Z" fill="currentColor"/>
+    <!-- Tag Eyelet / Hole with accent glow -->
+    <circle cx="32" cy="15" r="4.5" fill="#07182F"/>
+    <circle cx="32" cy="15" r="2.5" fill="#63B8F4"/>
+    <!-- Inner subtle detail -->
+    <path d="M12 28H28" stroke="#07182F" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+  </g>
+</svg>

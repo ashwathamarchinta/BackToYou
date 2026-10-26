@@ -1,0 +1,100 @@
+@model BackToYou.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Student Registration";
+}
+
+<div class="auth-split-wrapper">
+    <div class="auth-container" style="max-width: 1040px;">
+        <!-- Left Brand Side Panel (Desktop) -->
+        <div class="auth-brand-panel">
+            <div>
+                <a class="brand-link mb-4 d-inline-flex" asp-controller="Home" asp-action="Index">
+                    <img src="/images/branding/backtoyou-mark.svg" alt="BackToYou" class="brand-mark-svg" style="width: 38px; height: 38px;" />
+                    <span class="brand-text" style="font-size: 1.85rem;">BackToYou<span class="brand-dot">.</span></span>
+                </a>
+
+                <h2 class="auth-headline">
+                    Join the campus<br />
+                    <span style="color: #63B8F4; font-style: italic;">trust network</span>.
+                </h2>
+                <p class="small" style="color: rgba(248, 245, 237, 0.75); line-height: 1.6;">
+                    Create a verified profile to post reports, receive instant notifications, and claim lost belongings securely.
+                </p>
+            </div>
+
+            <div class="d-flex flex-column gap-3 pt-4 border-top" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+                <div class="d-flex align-items-center gap-3 small" style="color: rgba(248, 245, 237, 0.85);">
+                    <i class="bi bi-shield-check text-info fs-5"></i>
+                    <span>Restricted to university students &amp; staff</span>
+                </div>
+                <div class="d-flex align-items-center gap-3 small" style="color: rgba(248, 245, 237, 0.85);">
+                    <i class="bi bi-bell text-info fs-5"></i>
+                    <span>Real-time claim updates and handover alerts</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Authentication Form -->
+        <div class="auth-card-body">
+            <h3 class="fw-bold mb-1" style="font-family: var(--font-sans); color: var(--navy-950);">Create an account</h3>
+            <p class="small text-muted mb-4">Register your verified student or staff campus credentials.</p>
+
+            <form asp-controller="Account" asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 small rounded-3 mb-3" role="alert"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12">
+                        <label asp-for="FullName" class="form-label">Full Name</label>
+                        <input asp-for="FullName" class="form-control" placeholder="e.g. Ashwath Amarchinta" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label">University Email</label>
+                        <input asp-for="Email" class="form-control" placeholder="student@campus.edu" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="9876543210" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="StudentRollNumber" class="form-label">Roll / ID Number</label>
+                        <input asp-for="StudentRollNumber" class="form-control" placeholder="e.g. 25951A1208" />
+                        <span asp-validation-for="StudentRollNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Department" class="form-label">Department / Branch</label>
+                        <input asp-for="Department" class="form-control" placeholder="e.g. Information Technology" />
+                        <span asp-validation-for="Department" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Password" class="form-label">Password</label>
+                        <input asp-for="Password" class="form-control" placeholder="Min 6 characters" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Repeat password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold mt-2 mb-3">
+                    Complete Registration
+                </button>
+            </form>
+
+            <div class="text-center pt-3 border-top small text-muted">
+                <span>Already registered? </span>
+                <a asp-action="Login" class="fw-bold text-decoration-none text-primary">Sign in here</a>
+            </div>
+        </div>
+    </div>
+</div>

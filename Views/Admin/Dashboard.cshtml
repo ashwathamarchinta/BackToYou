@@ -1,0 +1,159 @@
+@model BackToYou.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container py-4 py-lg-5">
+    <!-- Admin Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+        <div>
+            <h1 class="page-title mb-1">Campus Administration Panel</h1>
+            <p class="section-subtitle mb-0">Overview of lost &amp; found listings, ownership claim verification, and student directory.</p>
+        </div>
+        <div class="dashboard-nav-pills">
+            <a asp-action="Dashboard" class="nav-link active">Overview</a>
+            <a asp-action="ManageClaims" class="nav-link">Claims (@Model.TotalPendingClaims)</a>
+            <a asp-action="ManageItems" class="nav-link">Items</a>
+            <a asp-action="ManageUsers" class="nav-link">Users</a>
+        </div>
+    </div>
+
+    <!-- Metrics Stat Cards -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 mb-4">
+        <div class="col">
+            <div class="dashboard-stat-card">
+                <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em;">Total Listings</span>
+                <div class="dashboard-stat-number">@Model.TotalItems</div>
+                <div class="small text-muted mt-2">@Model.TotalLost Lost &bull; @Model.TotalFound Found</div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="dashboard-stat-card">
+                <span class="text-warning small fw-semibold text-uppercase" style="letter-spacing: 0.05em;">Pending Review</span>
+                <div class="dashboard-stat-number text-warning">@Model.TotalPendingClaims</div>
+                <div class="small text-muted mt-2">Ownership claims awaiting verification</div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="dashboard-stat-card">
+                <span class="text-success small fw-semibold text-uppercase" style="letter-spacing: 0.05em;">Approved &amp; Reunited</span>
+                <div class="dashboard-stat-number text-success">@Model.TotalApprovedClaims</div>
+                <div class="small text-muted mt-2">Successfully restored to owners</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two-Column Activity Dashboard -->
+    <div class="row g-4">
+        <!-- Pending Claims Column -->
+        <div class="col-lg-6">
+            <div class="card bg-white rounded-4 border shadow-sm h-100 overflow-hidden">
+                <div class="p-3 px-4 bg-light border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark" style="font-family: var(--font-sans); font-size: 1rem;">
+                        <i class="bi bi-patch-question me-1 text-warning"></i> Claims Needing Review
+                    </h5>
+                    <a asp-action="ManageClaims" class="btn btn-secondary btn-sm px-3">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.PendingClaims.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Claimant</th>
+                                        <th>Submitted</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var claim in Model.PendingClaims)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="fw-semibold text-dark">@claim.Item?.Title</span>
+                                            </td>
+                                            <td class="small">@claim.Claimer?.FullName</td>
+                                            <td class="small text-muted">@claim.SubmittedAt.ToString("MMM dd")</td>
+                                            <td class="text-end">
+                                                <a asp-action="ManageClaims" class="btn btn-primary btn-sm px-3">
+                                                    Review
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-5 text-center text-muted small">
+                            <i class="bi bi-check2-circle text-success display-5 d-block mb-2"></i>
+                            All submitted claims are fully reviewed!
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Campus Reports -->
+        <div class="col-lg-6">
+            <div class="card bg-white rounded-4 border shadow-sm h-100 overflow-hidden">
+                <div class="p-3 px-4 bg-light border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark" style="font-family: var(--font-sans); font-size: 1rem;">
+                        <i class="bi bi-clock-history me-1 text-primary"></i> Recent Campus Listings
+                    </h5>
+                    <a asp-action="ManageItems" class="btn btn-secondary btn-sm px-3">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.RecentItems.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Type</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.RecentItems)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a asp-controller="Items" asp-action="Details" asp-route-id="@item.Id" class="fw-semibold text-dark text-decoration-none">
+                                                    @item.Title
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <span class="status-badge @(item.Type == BackToYou.Models.Entities.ItemType.Lost ? "badge-lost" : "badge-found")">
+                                                    @item.Type
+                                                </span>
+                                            </td>
+                                            <td class="small text-muted">@item.Location</td>
+                                            <td>
+                                                <span class="badge bg-light text-secondary border small">@item.Status</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-5 text-center text-muted small">
+                            No recent items reported.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
