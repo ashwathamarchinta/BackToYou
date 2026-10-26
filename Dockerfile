@@ -1,5 +1,5 @@
 # ─── Stage 1: Build ───────────────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Restore dependencies first (layer cache optimisation)
@@ -14,20 +14,18 @@ RUN dotnet publish BackToYou.csproj \
       --no-restore
 
 # ─── Stage 2: Runtime ─────────────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
-# Create a non-root user for security
-RUN adduser --disabled-password --gecos "" appuser
-
 # Copy published application
-COPY --from=build --chown=appuser:appuser /app/publish ./
+COPY --from=build /app/publish ./
 
-# Prepare upload folders and ensure appuser ownership
+# Prepare upload folders and ensure app user ownership
 RUN mkdir -p /app/wwwroot/uploads/items /app/wwwroot/uploads/proofs && \
-    chown -R appuser:appuser /app
+    chown -R ${APP_UID:-1654}:${APP_UID:-1654} /app && \
+    chmod -R 775 /app/wwwroot/uploads
 
-USER appuser
+USER $APP_UID
 
 # Render injects PORT; default to 8080 if not set
 ENV PORT=8080
