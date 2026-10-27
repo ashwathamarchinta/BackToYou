@@ -79,24 +79,31 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowVercelAndProduction", policy =>
     {
         var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS");
-        if (!string.IsNullOrEmpty(allowedOrigins))
+
+        string[] origins;
+
+        if (!string.IsNullOrWhiteSpace(allowedOrigins))
         {
-            var origins = allowedOrigins.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            policy.WithOrigins(origins)
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
+            origins = allowedOrigins.Split(
+                new[] { ',', ';' },
+                StringSplitOptions.RemoveEmptyEntries |
+                StringSplitOptions.TrimEntries);
         }
         else
         {
-            policy.SetIsOriginAllowed(_ => true)
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
+            origins = new[]
+            {
+                "https://backtoyou-web-9sli.onrender.com",
+                "https://backtoyou-iota.vercel.app"
+            };
         }
+
+        policy.WithOrigins(origins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
-
 // ── Listen on PORT env var (required by Render & Vercel containers) ────────
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
